@@ -8,6 +8,16 @@
 
 `@das3mical/adonis-mercure` is a Mercure client for AdonisJS, enabling the use of Server-Sent Events (SSE) to push real-time updates to your clients over HTTP.
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [Usage](#usage)
+  - [Generating JWT Tokens](#1-generating-jwt-tokens)
+  - [Sending Updates](#2-sending-updates)
+
 ## Getting Started
 
 ### Prerequisites
@@ -59,14 +69,14 @@ For example, given the secret \`**ChangeMe**\` and the algorithm \`**HS256**\`, 
 eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.mx2ROlYlE1rp7udoDy-WCdnpLdPuKWzDxoBJXGMK4OE
 ```
 
-### Usage
+## Usage
 
 This package provides access to two main functions:
 
 1. **generate**: Used to generate a JWT token for client authentication.
 2. **send**: Used to publish updates to the Mercure Hub.
 
-#### 1. Generating JWT Tokens
+### 1. Generating JWT Tokens
 
 The \`**generate**\` function creates a JWT token for a given payload, which can be used for subscribing to private topics.
 
@@ -78,7 +88,7 @@ const token = mercure.generate({
 })
 ```
 
-### Sending Updates
+### 2. Sending Updates
 
 The \`**send**\` function allows you to send data to one or more topics. You can also mark events as private if needed.
 
