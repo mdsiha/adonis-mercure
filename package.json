@@ -1,7 +1,7 @@
 {
   "name": "@das3mical/adonis-mercure",
   "description": "A simple AdonisJS provider to interact with Mercure hub",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "engines": {
     "node": ">=20.6.0"
   },
