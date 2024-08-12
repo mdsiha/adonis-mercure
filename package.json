@@ -1,0 +1,109 @@
+{
+  "name": "@das3mical/adonis-mercure",
+  "description": "A simple AdonisJS provider to interact with Mercure hub",
+  "version": "1.0.11",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "main": "./build/index.js",
+  "type": "module",
+  "files": [
+    "src",
+    "providers",
+    "index.ts",
+    "configure.ts",
+    "build"
+  ],
+  "exports": {
+    ".": "./build/index.js",
+    "./types": "./build/src/types/main.js",
+    "./services/main": "./build/services/mercure.js",
+    "./mercure_provider": "./build/providers/mercure_provider.js"
+  },
+  "scripts": {
+    "clean": "del-cli build",
+    "copy:templates": "copyfiles \"stubs/**/*.stub\" build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext=.ts",
+    "format": "prettier --write .",
+    "quick:test": "node --import=./tsnode.esm.js --enable-source-maps bin/test.ts",
+    "pretest": "npm run lint",
+    "test": "c8 npm run quick:test",
+    "prebuild": "npm run lint && npm run clean",
+    "build": "tsc",
+    "postbuild": "npm run copy:templates",
+    "release": "np",
+    "version": "npm run build",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@adonisjs/assembler": "^7.7.0",
+    "@adonisjs/core": "^6.12.1",
+    "@adonisjs/eslint-config": "^1.3.0",
+    "@adonisjs/prettier-config": "^1.3.0",
+    "@adonisjs/tsconfig": "^1.3.0",
+    "@japa/assert": "^3.0.0",
+    "@japa/runner": "^3.1.4",
+    "@swc/core": "^1.7.10",
+    "@types/jws": "^3.2.10",
+    "@types/node": "^22.2.0",
+    "c8": "^10.1.2",
+    "copyfiles": "^2.4.1",
+    "del-cli": "^5.1.0",
+    "eslint": "^8.57.0",
+    "np": "^10.0.7",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "got": "^14.4.2",
+    "jws": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@adonisjs/core": "^6.2.0"
+  },
+  "author": "Michael DAŞ",
+  "license": "MIT",
+  "homepage": "https://github.com/mdsiha/adonis-mercure#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mdsiha/adonis-mercure.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mdsiha/adonis-mercure/issues"
+  },
+  "keywords": [
+    "adonisjs",
+    "mercure",
+    "sse",
+    "realtime"
+  ],
+  "types": "./build/index.d.ts",
+  "eslintConfig": {
+    "extends": "@adonisjs/eslint-config/package"
+  },
+  "prettier": "@adonisjs/prettier-config",
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "np": {
+    "message": "chore(release): %s",
+    "tag": "latest",
+    "branch": "main",
+    "anyBranch": false
+  },
+  "c8": {
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "tests/**"
+    ]
+  },
+  "directories": {
+    "test": "tests"
+  }
+}

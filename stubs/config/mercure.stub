@@ -1,0 +1,15 @@
+{{{
+  exports({ to: app.configPath('mercure.ts') })
+}}}
+import env from '#start/env'
+import { defineConfig } from '@das3mical/adonis-mercure'
+
+export default defineConfig({
+  endpoint: env.get('MERCURE_ENDPOINT'),
+  adminToken: env.get('MERCURE_ADMIN_JWT'),
+
+  jwt: {
+    alg: 'HS256',
+    secret: env.get('MERCURE_JWT_SECRET'),
+  },
+})
