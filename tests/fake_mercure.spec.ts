@@ -86,4 +86,18 @@ test.group('FakeMercure', () => {
     const fake = new FakeMercure()
     assert.isTrue(await fake.ping())
   })
+
+  test('generate stores the payload and returns fake-token', async ({ assert }) => {
+    const fake = new FakeMercure()
+    const token = await fake.generate({ subscribe: ['/chat/1'] })
+
+    assert.equal(token, 'fake-token')
+  })
+
+  test('generateSubscribeToken returns fake-token', async ({ assert }) => {
+    const fake = new FakeMercure()
+    const token = await fake.generateSubscribeToken(['/orders/42'])
+
+    assert.equal(token, 'fake-token')
+  })
 })
