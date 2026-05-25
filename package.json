@@ -57,7 +57,6 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "got": "^14.4.2",
     "jws": "^4.0.0"
   },
   "peerDependencies": {
