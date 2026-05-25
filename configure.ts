@@ -36,6 +36,6 @@ export async function configure(_command: ConfigureCommand) {
   })
 
   await codemods.updateRcFile((rcFile) => {
-    rcFile.addProvider('@das3mical/adonis-mercure/mercure_provider')
+    rcFile.addProvider('@mdsiha369/adonis-mercure/mercure_provider')
   })
 }

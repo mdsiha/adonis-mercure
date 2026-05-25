@@ -13,7 +13,7 @@ export default class MercureProvider {
 
       if (!config?.endpoint || !config?.adminToken || !config?.jwt?.secret) {
         throw new MercureConfigError(
-          'Missing or incomplete Mercure config. Run "node ace configure @das3mical/adonis-mercure"'
+          'Missing or incomplete Mercure config. Run "node ace configure @mdsiha369/adonis-mercure"'
         )
       }
 

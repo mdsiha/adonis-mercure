@@ -2,7 +2,7 @@
   exports({ to: app.configPath('mercure.ts') })
 }}}
 import env from '#start/env'
-import { defineConfig } from '@das3mical/adonis-mercure'
+import { defineConfig } from '@mdsiha369/adonis-mercure'
 
 export default defineConfig({
   endpoint: env.get('MERCURE_ENDPOINT'),

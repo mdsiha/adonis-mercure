@@ -2,13 +2,13 @@
   <img src="https://raw.githubusercontent.com/mdsiha/adonis-mercure/main/assets/logo.svg" width="100" alt="adonis-mercure" />
 </p>
 
-<h1 align="center">@das3mical/adonis-mercure</h1>
+<h1 align="center">@mdsiha369/adonis-mercure</h1>
 
 <p align="center">
   <a href="https://github.com/mdsiha/adonis-mercure/actions/workflows/test.yml"><img src="https://github.com/mdsiha/adonis-mercure/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-  <a href="https://www.npmjs.com/package/@das3mical/adonis-mercure"><img src="https://img.shields.io/npm/dm/@das3mical/adonis-mercure.svg?style=flat-square" alt="Downloads"></a>
-  <a href="https://www.npmjs.com/package/@das3mical/adonis-mercure"><img src="https://img.shields.io/npm/v/@das3mical/adonis-mercure.svg?style=flat-square" alt="Version"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/npm/l/@das3mical/adonis-mercure.svg?style=flat-square" alt="License"></a>
+  <a href="https://www.npmjs.com/package/@mdsiha369/adonis-mercure"><img src="https://img.shields.io/npm/dm/@mdsiha369/adonis-mercure.svg?style=flat-square" alt="Downloads"></a>
+  <a href="https://www.npmjs.com/package/@mdsiha369/adonis-mercure"><img src="https://img.shields.io/npm/v/@mdsiha369/adonis-mercure.svg?style=flat-square" alt="Version"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/npm/l/@mdsiha369/adonis-mercure.svg?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
@@ -45,8 +45,8 @@
 ## Installation
 
 ```bash
-npm install @das3mical/adonis-mercure
-node ace configure @das3mical/adonis-mercure
+npm install @mdsiha369/adonis-mercure
+node ace configure @mdsiha369/adonis-mercure
 ```
 
 ## Configuration
@@ -56,7 +56,7 @@ After running `ace configure`, a `config/mercure.ts` file is created and your `.
 ```ts
 // config/mercure.ts
 import env from '#start/env'
-import { defineConfig } from '@das3mical/adonis-mercure'
+import { defineConfig } from '@mdsiha369/adonis-mercure'
 
 export default defineConfig({
   endpoint: env.get('MERCURE_ENDPOINT'),
@@ -89,7 +89,7 @@ MERCURE_JWT_SECRET=<your-jwt-secret>
 Import the service anywhere in your app:
 
 ```ts
-import mercure from '@das3mical/adonis-mercure/services/main'
+import mercure from '@mdsiha369/adonis-mercure/services/main'
 ```
 
 ### Publish an update
@@ -169,7 +169,7 @@ const isReachable = await mercure.ping() // true | false
 **Swap the container binding in your test setup:**
 
 ```ts
-import { FakeMercure } from '@das3mical/adonis-mercure'
+import { FakeMercure } from '@mdsiha369/adonis-mercure'
 
 // before your test
 app.container.swap('mercure', () => new FakeMercure())
