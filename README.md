@@ -5,6 +5,7 @@
 <h1 align="center">@das3mical/adonis-mercure</h1>
 
 <p align="center">
+  <a href="https://github.com/mdsiha/adonis-mercure/actions/workflows/test.yml"><img src="https://github.com/mdsiha/adonis-mercure/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="https://www.npmjs.com/package/@das3mical/adonis-mercure"><img src="https://img.shields.io/npm/dm/@das3mical/adonis-mercure.svg?style=flat-square" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/@das3mical/adonis-mercure"><img src="https://img.shields.io/npm/v/@das3mical/adonis-mercure.svg?style=flat-square" alt="Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/npm/l/@das3mical/adonis-mercure.svg?style=flat-square" alt="License"></a>
