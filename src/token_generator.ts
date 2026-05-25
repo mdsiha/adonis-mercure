@@ -21,6 +21,8 @@ export class TokenGenerator {
     })
   }
 
+  // WARNING: never pass user-controlled topics directly — a wildcard topic ('*')
+  // would grant the token holder access to all private events.
   generateSubscribeToken(topics: string[]): Promise<string> {
     return this.generate({ subscribe: topics })
   }

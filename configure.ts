@@ -21,10 +21,9 @@ export async function configure(_command: ConfigureCommand) {
   await codemods.makeUsingStub(stubsRoot, 'config/mercure.stub', {})
 
   await codemods.defineEnvVariables({
-    MERCURE_ENDPOINT: 'http://localhost:3333/.well-known/mercure',
-    MERCURE_ADMIN_JWT:
-      'eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdfX0.mx2ROlYlE1rp7udoDy-WCdnpLdPuKWzDxoBJXGMK4OE',
-    MERCURE_JWT_SECRET: 'ChangeMe',
+    MERCURE_ENDPOINT: 'http://localhost:3000/.well-known/mercure',
+    MERCURE_ADMIN_JWT: '',
+    MERCURE_JWT_SECRET: '',
   })
 
   await codemods.defineEnvValidations({
