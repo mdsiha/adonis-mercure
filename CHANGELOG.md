@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1] - 2026-05-25
+
+### Changed
+
+- Updated package description and keywords for better discoverability on npm and search engines
+
+---
+
 ## [2.1.0] - 2026-05-25
 
 ### Added
