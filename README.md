@@ -63,6 +63,10 @@ export default defineConfig({
     alg: 'HS256',
     secret: env.get('MERCURE_JWT_SECRET'),
   },
+  // optional — default: 5000ms, set to 0 to disable
+  http: {
+    timeout: 5000,
+  },
 })
 ```
 
@@ -219,7 +223,8 @@ Publishes an update to the Mercure Hub.
 | `type`    | `string`  | SSE event type                                 |
 | `retry`   | `number`  | Client reconnect delay in milliseconds         |
 
-Throws `MercurePublishError` if the hub returns a non-2xx response.
+Throws `MercurePublishError` if the hub returns a non-2xx response.  
+Throws `MercureTimeoutError` if the hub does not respond within the configured timeout.
 
 ---
 
@@ -245,7 +250,7 @@ const token = await mercure.generate({ subscribe: ['/chat/1'], publish: ['/chat/
 
 ### `ping()`
 
-Returns `true` if the hub is reachable, `false` on network error.
+Returns `true` if the hub is reachable, `false` on network error or timeout.
 
 ---
 
