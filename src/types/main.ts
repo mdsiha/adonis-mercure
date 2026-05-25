@@ -7,6 +7,9 @@ export interface MercureConfig {
     alg: Algorithm
     secret: string
   }
+  http?: {
+    timeout?: number
+  }
 }
 
 export interface SendOptions {

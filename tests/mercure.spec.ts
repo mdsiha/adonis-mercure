@@ -100,4 +100,14 @@ test.group('Mercure', (group) => {
 
     assert.isFalse(await new Mercure(config).ping())
   })
+
+  test('ping returns false on timeout', async ({ assert }) => {
+    globalThis.fetch = async () => {
+      const err = new Error('The operation was aborted')
+      err.name = 'AbortError'
+      throw err
+    }
+
+    assert.isFalse(await new Mercure(config).ping())
+  })
 })

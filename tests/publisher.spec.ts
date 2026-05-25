@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import { Publisher } from '../src/publisher.js'
 import { MercurePublishError } from '../src/errors/publish_error.js'
+import { MercureTimeoutError } from '../src/errors/timeout_error.js'
 
 const config = {
   endpoint: 'http://localhost:3000/.well-known/mercure',
@@ -95,6 +96,24 @@ test.group('Publisher', (group) => {
 
     assert.instanceOf(caught, MercurePublishError)
     assert.equal((caught as MercurePublishError).statusCode, 401)
+  })
+
+  test('throws MercureTimeoutError when request times out', async ({ assert }) => {
+    globalThis.fetch = async () => {
+      const err = new Error('The operation was aborted')
+      err.name = 'AbortError'
+      throw err
+    }
+
+    let caught: unknown
+    try {
+      await new Publisher(config).publish('topic', {})
+    } catch (err) {
+      caught = err
+    }
+
+    assert.instanceOf(caught, MercureTimeoutError)
+    assert.equal((caught as MercureTimeoutError).timeoutMs, 5000)
   })
 
   test('handles multiple topics', async ({ assert }) => {
