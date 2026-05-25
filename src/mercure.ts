@@ -1,60 +1,43 @@
-import jws from 'jws'
-import { MercureConfig } from './types/main.js'
-import got from 'got'
+import { TokenGenerator } from './token_generator.js'
+import { Publisher } from './publisher.js'
+import type { MercureConfig, MercureContract, SendOptions } from './types/main.js'
 
-export class Mercure {
+export class Mercure implements MercureContract {
   #config: MercureConfig
+  #tokenGenerator: TokenGenerator
+  #publisher: Publisher
 
   constructor(config: MercureConfig) {
     this.#config = config
+    this.#tokenGenerator = new TokenGenerator(config)
+    this.#publisher = new Publisher(config)
   }
 
-  generate(payload: any) {
-    return new Promise((resolve, reject) => {
-      jws
-        .createSign({
-          payload: { mercure: payload },
-          secret: this.#config.jwt.secret,
-          header: { alg: this.#config.jwt.alg },
-        })
-        .on('error', reject)
-        .on('done', resolve)
-    })
+  generate(payload: Record<string, unknown>): Promise<string> {
+    return this.#tokenGenerator.generate(payload)
   }
 
-  async send(
+  generateSubscribeToken(topics: string[]): Promise<string> {
+    return this.#tokenGenerator.generateSubscribeToken(topics)
+  }
+
+  send(
     topics: string | string[],
-    data: Record<string, string> = {},
-    isPrivate: boolean = false
-  ) {
-    topics = Array.isArray(topics) ? topics : [topics]
+    data: Record<string, unknown> = {},
+    isPrivateOrOptions: boolean | SendOptions = false
+  ): Promise<Response> {
+    const options: SendOptions =
+      typeof isPrivateOrOptions === 'boolean' ? { private: isPrivateOrOptions } : isPrivateOrOptions
 
-    const form = new URLSearchParams()
+    return this.#publisher.publish(topics, data, options)
+  }
 
-    topics.forEach((topic) => form.append('topic', topic))
-    form.append('data', JSON.stringify(data))
-
-    if (isPrivate) {
-      form.append('private', 'on')
-    }
-
+  async ping(): Promise<boolean> {
     try {
-      const response = await got.post(this.#config.endpoint, {
-        headers: {
-          'Authorization': `Bearer ${this.#config.adminToken}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: form.toString(),
-      })
-
-      return response
-    } catch (error) {
-      if (error.response) {
-        console.error('Error response:', error.response.body)
-        console.error('Status code:', error.response.statusCode)
-      } else {
-        console.error('Error message:', error.message)
-      }
+      await fetch(this.#config.endpoint, { method: 'HEAD' })
+      return true
+    } catch {
+      return false
     }
   }
 }
