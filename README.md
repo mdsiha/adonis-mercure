@@ -30,6 +30,7 @@
   - [Health check](#health-check)
 - [Testing](#testing)
 - [API Reference](#api-reference)
+- [Roadmap](#roadmap)
 - [License](#license)
 
 ---
@@ -251,6 +252,19 @@ const token = await mercure.generate({ subscribe: ['/chat/1'], publish: ['/chat/
 ### `ping()`
 
 Returns `true` if the hub is reachable, `false` on network error or timeout.
+
+---
+
+## Roadmap
+
+Features planned for upcoming releases:
+
+- **`generatePublishToken(topics)`** — typed shorthand for publisher JWT tokens (symmetric to `generateSubscribeToken`)
+- **`sendBatch(messages[])`** — publish multiple updates in a single call
+- **Retry with backoff** — automatic retry on transient hub errors with configurable strategy
+- **Typed event classes** — define reusable event objects (`new OrderShippedEvent(id)`) instead of inline payloads
+
+Have a use case or suggestion? [Open an issue](https://github.com/mdsiha/adonis-mercure/issues).
 
 ---
 
