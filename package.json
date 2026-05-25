@@ -1,6 +1,6 @@
 {
   "name": "@das3mical/adonis-mercure",
-  "description": "A simple AdonisJS provider to interact with Mercure hub",
+  "description": "Mercure Hub integration for AdonisJS v6 — publish real-time updates via Server-Sent Events (SSE)",
   "version": "2.1.0",
   "engines": {
     "node": ">=20.6.0"
@@ -74,9 +74,16 @@
   },
   "keywords": [
     "adonisjs",
+    "adonisjs-package",
     "mercure",
     "sse",
-    "realtime"
+    "server-sent-events",
+    "realtime",
+    "real-time",
+    "typescript",
+    "jwt",
+    "push-notifications",
+    "nodejs"
   ],
   "types": "./build/index.d.ts",
   "eslintConfig": {
