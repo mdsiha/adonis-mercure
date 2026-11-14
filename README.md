@@ -19,6 +19,7 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -26,11 +27,15 @@
   - [Publish an update](#publish-an-update)
   - [Multiple topics](#multiple-topics)
   - [Private updates](#private-updates)
-  - [SSE options](#sse-options-id-type-retry)
+  - [SSE options (id, type, retry)](#sse-options-id-type-retry)
   - [Generate a subscriber token](#generate-a-subscriber-token)
   - [Health check](#health-check)
 - [Testing](#testing)
 - [API Reference](#api-reference)
+  - [`send(topics, data?, options?)`](#sendtopics-data-options)
+  - [`generateSubscribeToken(topics)`](#generatesubscribetokentopics)
+  - [`generate(payload)`](#generatepayload)
+  - [`ping()`](#ping)
 - [Roadmap](#roadmap)
 - [License](#license)
 
@@ -143,14 +148,52 @@ const token = await mercure.generateSubscribeToken(['/orders/42'])
 const token = await mercure.generate({ subscribe: ['/orders/42'] })
 ```
 
-Pass the token to your frontend:
+Browsers cannot send an `Authorization` header with `EventSource`, so there are two ways to give the token to the hub.
+
+** Option 1: cookie (works with a plain `EventSource`)**
+
+Set the token in a cookie from your AdonisJS app. Use `plainCookie`:
+`response.cookie` signs the value and the hub would reject it.
 
 ```ts
-const url = new URL('http://localhost:3000/.well-known/mercure')
+router.get('/orders/:id/subscribe', async ({ params, response }) => {
+  const token = await mercure.generateSubscribeToken([`/orders/${params.id}`])
+
+  response.plainCookie('__Secure-mercure_access_token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+  })
+
+  return { ok: true }
+})
+```
+
+Then, in the browser:
+
+```ts
+const url = new URL('https://hub.example.com/.well-known/mercure')
 url.searchParams.append('topic', '/orders/42')
 
-const eventSource = new EventSource(url.toString(), {
+const eventSource = new EventSource(url, { withCredentials: true })
+```
+
+- The cookie name is the `cookie_name` setting of your hub. Recent hubs default to `__Secure-mercure_access_token`.
+- The app and the hub must share the same registrable domain (for example `app.example.com` and `hub.example.com`). Add `domain: '.example.com'` to the cookie options in that case.
+- The `__Secure-` prefix requires HTTPS. For local HTTP development, configure a cookie name without the prefix in the hub and use `secure: false`.
+
+**Option 2: `Authorization` header**
+
+Use a client that reads the stream with `fetch()`, such as `@microsoft/fetch-event-source`:
+
+```ts
+import { fetchEventSource } from '@microsoft/fetch-event-source'
+
+await fetchEventSource(url.toString(), {
   headers: { Authorization: `Bearer ${token}` },
+  onmessage(event) {
+    console.log(event.data)
+  },
 })
 ```
 
