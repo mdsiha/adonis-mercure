@@ -12,6 +12,11 @@ export interface MercureConfig {
   }
 }
 
+export interface TokenOptions {
+  /** Token lifetime in seconds. No `exp` claim is set when omitted */
+  expiresIn?: number
+}
+
 export interface SendOptions {
   private?: boolean
   id?: string
@@ -20,8 +25,8 @@ export interface SendOptions {
 }
 
 export interface MercureContract {
-  generate(payload: Record<string, unknown>): Promise<string>
-  generateSubscribeToken(topics: string[]): Promise<string>
+  generate(payload: Record<string, unknown>, options?: TokenOptions): Promise<string>
+  generateSubscribeToken(topics: string[], options?: TokenOptions): Promise<string>
   send(
     topics: string | string[],
     data?: Record<string, unknown>,

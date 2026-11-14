@@ -148,6 +148,12 @@ const token = await mercure.generateSubscribeToken(['/orders/42'])
 const token = await mercure.generate({ subscribe: ['/orders/42'] })
 ```
 
+Tokens do not expire by default. Pass `expiresIn` (in seconds) to limit how long a token stays valid:
+
+```ts
+const token = await mercure.generateSubscribeToken(['/orders/42'], { expiresIn: 3600 })
+```
+
 Browsers cannot send an `Authorization` header with `EventSource`, so there are two ways to give the token to the hub.
 
 ** Option 1: cookie (works with a plain `EventSource`)**
@@ -281,6 +287,8 @@ Generates a JWT with `{ subscribe: topics }` for a frontend client.
 const token = await mercure.generateSubscribeToken(['/chat/1', '/notifications/me'])
 ```
 
+Takes an optional last argument `{ expiresIn }` (seconds) that sets the `exp` claim. Without it the token never expires.
+
 ---
 
 ### `generate(payload)`
@@ -290,6 +298,8 @@ Low-level JWT generation. Wraps `payload` under the `mercure` claim.
 ```ts
 const token = await mercure.generate({ subscribe: ['/chat/1'], publish: ['/chat/1'] })
 ```
+
+Takes an optional last argument `{ expiresIn }` (seconds) that sets the `exp` claim. Without it the token never expires.
 
 ---
 
