@@ -1,5 +1,24 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Published types no longer depend on `@types/jws`: `jwt.alg` is now typed with the new `JwtAlgorithm` union instead of `any` in user projects
+- README: the browser subscription example did not work (`EventSource` cannot send an `Authorization` header). It now documents the cookie and fetch options
+
+### Changed
+
+- The npm package no longer ships the compiled tests or the raw `.ts` sources (13.7 kB down to 9.0 kB)
+
+---
+
+## [2.1.2] - 2026-05-25
+
+### Changed
+
+- Package renamed from `@das3mical/adonis-mercure` to `@mdsiha369/adonis-mercure`. The old package is deprecated and will not receive updates. To migrate, install the new package and replace the old name in `adonisrc.ts`, `config/mercure.ts` and your imports
+
 ## [2.1.1] - 2026-05-25
 
 ### Changed
@@ -56,6 +75,6 @@
 
 ---
 
-## [1.0.12] - 2025-08-01
+## [1.0.12] - 2024-08-12
 
 Initial stable release.
