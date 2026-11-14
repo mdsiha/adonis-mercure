@@ -1,4 +1,4 @@
-import type { MercureContract, SendOptions } from './types/main.js'
+import type { MercureContract, SendOptions, TokenOptions } from './types/main.js'
 
 export interface SentMessage {
   topics: string[]
@@ -10,13 +10,14 @@ export class FakeMercure implements MercureContract {
   #sent: SentMessage[] = []
   #tokens: Array<Record<string, unknown>> = []
 
-  async generate(payload: Record<string, unknown>): Promise<string> {
+  // options (expiresIn) are accepted to match the contract but have no effect here
+  async generate(payload: Record<string, unknown>, _options?: TokenOptions): Promise<string> {
     this.#tokens.push(payload)
     return 'fake-token'
   }
 
-  async generateSubscribeToken(topics: string[]): Promise<string> {
-    return this.generate({ subscribe: topics })
+  async generateSubscribeToken(topics: string[], options?: TokenOptions): Promise<string> {
+    return this.generate({ subscribe: topics }, options)
   }
 
   async send(

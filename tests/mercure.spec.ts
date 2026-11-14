@@ -35,6 +35,15 @@ test.group('Mercure', (group) => {
     assert.deepEqual(payload.mercure.subscribe, ['/orders/42'])
   })
 
+  test('generateSubscribeToken forwards expiresIn', async ({ assert }) => {
+    const token = await new Mercure(config).generateSubscribeToken(['/orders/42'], {
+      expiresIn: 60,
+    })
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString())
+
+    assert.isNumber(payload.exp)
+  })
+
   test('send publishes topic and data to the hub', async ({ assert }) => {
     let capturedBody = ''
     globalThis.fetch = async (_url, init) => {

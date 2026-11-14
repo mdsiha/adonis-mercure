@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `expiresIn` option (in seconds) on `generate()` and `generateSubscribeToken()` to set the JWT `exp` claim. Tokens still do not expire when it is omitted
+
 ### Fixed
 
 - Published types no longer depend on `@types/jws`: `jwt.alg` is now typed with the new `JwtAlgorithm` union instead of `any` in user projects
@@ -18,6 +22,8 @@
 ### Changed
 
 - Package renamed from `@das3mical/adonis-mercure` to `@mdsiha369/adonis-mercure`. The old package is deprecated and will not receive updates. To migrate, install the new package and replace the old name in `adonisrc.ts`, `config/mercure.ts` and your imports
+
+---
 
 ## [2.1.1] - 2026-05-25
 
