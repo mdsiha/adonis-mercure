@@ -4,6 +4,7 @@
 
 ### Added
 
+- `MercureConnectionError`, thrown by `send()` when the hub cannot be reached. It extends `MercureError` and keeps the original error in `cause`
 - `expiresIn` option (in seconds) on `generate()` and `generateSubscribeToken()` to set the JWT `exp` claim. Tokens still do not expire when it is omitted
 
 ### Fixed
@@ -13,6 +14,7 @@
 
 ### Changed
 
+- `send()` no longer throws the raw `fetch` error (`TypeError: fetch failed`) on network failures. Code that catches that `TypeError` should catch `MercureConnectionError` instead
 - The npm package no longer ships the compiled tests or the raw `.ts` sources (13.7 kB down to 9.0 kB)
 
 ---

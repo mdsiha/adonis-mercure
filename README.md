@@ -275,7 +275,8 @@ Publishes an update to the Mercure Hub.
 | `retry`   | `number`  | Client reconnect delay in milliseconds         |
 
 Throws `MercurePublishError` if the hub returns a non-2xx response.  
-Throws `MercureTimeoutError` if the hub does not respond within the configured timeout.
+Throws `MercureTimeoutError` if the hub does not respond within the configured timeout.  
+Throws `MercureConnectionError` if the hub cannot be reached (connection refused, DNS failure, ...). The original error is available in `error.cause`.
 
 ---
 

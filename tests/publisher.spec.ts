@@ -2,6 +2,8 @@ import { test } from '@japa/runner'
 import { Publisher } from '../src/publisher.js'
 import { MercurePublishError } from '../src/errors/publish_error.js'
 import { MercureTimeoutError } from '../src/errors/timeout_error.js'
+import { MercureError } from '../src/errors/mercure_error.js'
+import { MercureConnectionError } from '../src/errors/connection_error.js'
 
 const config = {
   endpoint: 'http://localhost:3000/.well-known/mercure',
@@ -114,6 +116,30 @@ test.group('Publisher', (group) => {
 
     assert.instanceOf(caught, MercureTimeoutError)
     assert.equal((caught as MercureTimeoutError).timeoutMs, 5000)
+  })
+
+  test('wraps network failures in MercureConnectionError and keeps the cause', async ({
+    assert,
+  }) => {
+    const reason = Object.assign(new Error('connect ECONNREFUSED 127.0.0.1:3000'), {
+      code: 'ECONNREFUSED',
+    })
+    const original = new TypeError('fetch failed', { cause: reason })
+    globalThis.fetch = async () => {
+      throw original
+    }
+
+    let caught: unknown
+    try {
+      await new Publisher(config).publish('topic', {})
+    } catch (err) {
+      caught = err
+    }
+
+    assert.instanceOf(caught, MercureConnectionError)
+    assert.instanceOf(caught, MercureError)
+    assert.include((caught as Error).message, 'ECONNREFUSED')
+    assert.strictEqual((caught as Error).cause, original)
   })
 
   test('handles multiple topics', async ({ assert }) => {

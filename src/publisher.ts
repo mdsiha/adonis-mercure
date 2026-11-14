@@ -1,3 +1,5 @@
+import { MercureConnectionError } from './errors/connection_error.js'
+import { MercureError } from './errors/mercure_error.js'
 import { MercurePublishError } from './errors/publish_error.js'
 import { MercureTimeoutError } from './errors/timeout_error.js'
 import type { MercureConfig, SendOptions } from './types/main.js'
@@ -51,10 +53,11 @@ export class Publisher {
 
       return response
     } catch (err) {
+      if (err instanceof MercureError) throw err
       if ((err as Error)?.name === 'AbortError') {
         throw new MercureTimeoutError(timeout)
       }
-      throw err
+      throw new MercureConnectionError(err)
     } finally {
       if (timer) clearTimeout(timer)
     }
