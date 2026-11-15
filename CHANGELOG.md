@@ -8,6 +8,7 @@
 - `expiresIn` option (in seconds) on `generate()` and `generateSubscribeToken()` to set the JWT `exp` claim. Tokens still do not expire when it is omitted
 - Tests for `defineConfig()`, the provider and the `configure` hook
 - `FakeMercure.assertSentCount()` and `FakeMercure.getTokens()`
+- Public types (`MercureConfig`, `MercureContract`, `SendOptions`, `TokenOptions`, `JwtAlgorithm`, `SentMessage`) can now be imported from the package root. The `/types` subpath still works
 
 ### Fixed
 
@@ -21,6 +22,7 @@
 - `send()` no longer throws the raw `fetch` error (`TypeError: fetch failed`) on network failures. Code that catches that `TypeError` should catch `MercureConnectionError` instead
 - The npm package no longer ships the compiled tests or the raw `.ts` sources (13.7 kB down to 9.0 kB)
 - `defineConfig()` now rejects an `endpoint` that is not an http(s) URL and an empty `adminToken`, so misconfiguration fails at startup
+- AdonisJS v7 is now accepted by the `@adonisjs/core` peer dependency range, and CI runs the typecheck and tests against it
 
 ---
 
