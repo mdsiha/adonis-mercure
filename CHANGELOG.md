@@ -6,17 +6,19 @@
 
 - `MercureConnectionError`, thrown by `send()` when the hub cannot be reached. It extends `MercureError` and keeps the original error in `cause`
 - `expiresIn` option (in seconds) on `generate()` and `generateSubscribeToken()` to set the JWT `exp` claim. Tokens still do not expire when it is omitted
+- Tests for `defineConfig()`, the provider and the `configure` hook
 
 ### Fixed
 
 - Published types no longer depend on `@types/jws`: `jwt.alg` is now typed with the new `JwtAlgorithm` union instead of `any` in user projects
 - README: the browser subscription example did not work (`EventSource` cannot send an `Authorization` header). It now documents the cookie and fetch options
-- - `ping()` now returns `false` when the hub answers with a 5xx status instead of reporting it as reachable
+- `ping()` now returns `false` when the hub answers with a 5xx status instead of reporting it as reachable
 
 ### Changed
 
 - `send()` no longer throws the raw `fetch` error (`TypeError: fetch failed`) on network failures. Code that catches that `TypeError` should catch `MercureConnectionError` instead
 - The npm package no longer ships the compiled tests or the raw `.ts` sources (13.7 kB down to 9.0 kB)
+- `defineConfig()` now rejects an `endpoint` that is not an http(s) URL and an empty `adminToken`, so misconfiguration fails at startup
 
 ---
 
