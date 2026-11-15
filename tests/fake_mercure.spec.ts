@@ -39,6 +39,51 @@ test.group('FakeMercure', () => {
     assert.throws(() => fake.assertSent('/topic', { foo: 'wrong' }))
   })
 
+  test('assertSent ignores key order in the data', async ({ assert }) => {
+    const fake = new FakeMercure()
+    await fake.send('/topic', { a: 1, nested: { x: 1, y: 2 } })
+
+    assert.doesNotThrow(() => fake.assertSent('/topic', { nested: { y: 2, x: 1 }, a: 1 }))
+  })
+
+  test('assertSent treats undefined values like the hub would', async ({ assert }) => {
+    const fake = new FakeMercure()
+    await fake.send('/topic', { a: 1, b: undefined })
+
+    assert.doesNotThrow(() => fake.assertSent('/topic', { a: 1 }))
+  })
+
+  test('assertSentCount passes on the exact count', async ({ assert }) => {
+    const fake = new FakeMercure()
+    await fake.send('/a', {})
+    await fake.send('/b', {})
+
+    assert.doesNotThrow(() => fake.assertSentCount(2))
+  })
+
+  test('assertSentCount throws on a different count', async ({ assert }) => {
+    const fake = new FakeMercure()
+    await fake.send('/a', {})
+
+    assert.throws(() => fake.assertSentCount(2), /Expected 2 message\(s\)/)
+  })
+
+  test('getTokens returns the payloads passed to generate', async ({ assert }) => {
+    const fake = new FakeMercure()
+    await fake.generate({ subscribe: ['/a'] })
+    await fake.generateSubscribeToken(['/b'])
+
+    assert.deepEqual(fake.getTokens(), [{ subscribe: ['/a'] }, { subscribe: ['/b'] }])
+  })
+
+  test('clear also resets recorded tokens', async ({ assert }) => {
+    const fake = new FakeMercure()
+    await fake.generate({ subscribe: ['/a'] })
+    fake.clear()
+
+    assert.lengthOf(fake.getTokens(), 0)
+  })
+
   test('assertNotSent passes when topic was never sent', ({ assert }) => {
     const fake = new FakeMercure()
 

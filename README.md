@@ -244,8 +244,14 @@ fake.assertNotSent('/admin/secret')
 // assert nothing was sent at all
 fake.assertNothingSent()
 
+// assert an exact number of messages
+fake.assertSentCount(2)
+
 // inspect all recorded messages
 const messages = fake.getSent()
+
+// inspect the payloads passed to generate() / generateSubscribeToken()
+const tokens = fake.getTokens()
 
 // reset between tests
 fake.clear()
