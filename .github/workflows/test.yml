@@ -1,8 +1,9 @@
 name: test
 
 on:
-  - push
-  - pull_request
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   lint:
@@ -12,8 +13,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
       - name: Install
-        run: npm install
+        run: npm ci
       - name: Run lint
         run: npm run lint
 
@@ -24,8 +26,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
       - name: Install
-        run: npm install
+        run: npm ci
       - name: Run typecheck
         run: npm run typecheck
 
@@ -40,7 +43,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
       - name: Install
-        run: npm install
+        run: npm ci
       - name: Run tests
         run: npm test
