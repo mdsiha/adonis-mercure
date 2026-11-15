@@ -43,7 +43,7 @@
 
 ## Requirements
 
-- AdonisJS **v6**
+- AdonisJS **v6** or **v7**
 - Node.js **>= 20.6.0**
 - A running [Mercure Hub](https://mercure.rocks/docs/hub/install)
 
