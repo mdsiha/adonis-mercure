@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+---
+
+## [2.2.0] - 2026-11-15
+
 ### Added
 
 - `MercureConnectionError`, thrown by `send()` when the hub cannot be reached. It extends `MercureError` and keeps the original error in `cause`
