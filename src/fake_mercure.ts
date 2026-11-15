@@ -1,9 +1,15 @@
+import { isDeepStrictEqual } from 'node:util'
 import type { MercureContract, SendOptions, TokenOptions } from './types/main.js'
 
 export interface SentMessage {
   topics: string[]
   data: Record<string, unknown>
   options: SendOptions
+}
+
+// Compare what the hub would receive
+function isSameData(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+  return isDeepStrictEqual(JSON.parse(JSON.stringify(a)), JSON.parse(JSON.stringify(b)))
 }
 
 export class FakeMercure implements MercureContract {
@@ -41,7 +47,7 @@ export class FakeMercure implements MercureContract {
     const match = this.#sent.find((msg) => {
       if (!msg.topics.includes(topic)) return false
       if (!data) return true
-      return JSON.stringify(msg.data) === JSON.stringify(data)
+      return isSameData(msg.data, data)
     })
 
     if (!match) {
@@ -57,6 +63,12 @@ export class FakeMercure implements MercureContract {
     }
   }
 
+  assertSentCount(expected: number): void {
+    if (this.#sent.length !== expected) {
+      throw new Error(`Expected ${expected} message(s) to be sent but found ${this.#sent.length}`)
+    }
+  }
+
   assertNothingSent(): void {
     if (this.#sent.length > 0) {
       const topics = this.#sent.map((m) => m.topics.join(', ')).join('; ')
@@ -66,6 +78,10 @@ export class FakeMercure implements MercureContract {
 
   getSent(): SentMessage[] {
     return [...this.#sent]
+  }
+
+  getTokens(): Array<Record<string, unknown>> {
+    return [...this.#tokens]
   }
 
   clear(): void {

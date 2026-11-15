@@ -7,12 +7,14 @@
 - `MercureConnectionError`, thrown by `send()` when the hub cannot be reached. It extends `MercureError` and keeps the original error in `cause`
 - `expiresIn` option (in seconds) on `generate()` and `generateSubscribeToken()` to set the JWT `exp` claim. Tokens still do not expire when it is omitted
 - Tests for `defineConfig()`, the provider and the `configure` hook
+- `FakeMercure.assertSentCount()` and `FakeMercure.getTokens()`
 
 ### Fixed
 
 - Published types no longer depend on `@types/jws`: `jwt.alg` is now typed with the new `JwtAlgorithm` union instead of `any` in user projects
 - README: the browser subscription example did not work (`EventSource` cannot send an `Authorization` header). It now documents the cookie and fetch options
 - `ping()` now returns `false` when the hub answers with a 5xx status instead of reporting it as reachable
+- `FakeMercure.assertSent()` no longer fails when the expected data has its keys in a different order
 
 ### Changed
 
