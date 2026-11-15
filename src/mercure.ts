@@ -40,11 +40,13 @@ export class Mercure implements MercureContract {
     const timer = controller ? setTimeout(() => controller.abort(), timeout) : null
 
     try {
-      await fetch(this.#config.endpoint, {
+      const response = await fetch(this.#config.endpoint, {
         method: 'HEAD',
         signal: controller?.signal,
       })
-      return true
+
+      // 4xx still means the hub answered
+      return response.status < 500
     } catch {
       return false
     } finally {
