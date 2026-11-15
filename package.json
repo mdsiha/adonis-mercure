@@ -63,7 +63,7 @@
   "homepage": "https://github.com/mdsiha/adonis-mercure#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/mdsiha/adonis-mercure.git"
+    "url": "git+https://github.com/mdsiha/adonis-mercure.git"
   },
   "bugs": {
     "url": "https://github.com/mdsiha/adonis-mercure/issues"
