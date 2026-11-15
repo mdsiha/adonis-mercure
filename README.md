@@ -306,7 +306,7 @@ Takes an optional last argument `{ expiresIn }` (seconds) that sets the `exp` cl
 
 ### `ping()`
 
-Returns `true` if the hub is reachable, `false` on network error or timeout.
+Returns `true` if the hub answers, including with a 4xx status. Returns `false` if the hub answers with a 5xx status, if the request fails, or if it times out.
 
 ---
 

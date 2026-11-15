@@ -11,6 +11,7 @@
 
 - Published types no longer depend on `@types/jws`: `jwt.alg` is now typed with the new `JwtAlgorithm` union instead of `any` in user projects
 - README: the browser subscription example did not work (`EventSource` cannot send an `Authorization` header). It now documents the cookie and fetch options
+- - `ping()` now returns `false` when the hub answers with a 5xx status instead of reporting it as reachable
 
 ### Changed
 

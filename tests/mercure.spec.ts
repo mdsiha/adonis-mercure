@@ -102,6 +102,12 @@ test.group('Mercure', (group) => {
     assert.isTrue(await new Mercure(config).ping())
   })
 
+  test('ping returns false when the hub answers 5xx', async ({ assert }) => {
+    globalThis.fetch = async () => new Response('', { status: 500 })
+
+    assert.isFalse(await new Mercure(config).ping())
+  })
+
   test('ping returns false on network error', async ({ assert }) => {
     globalThis.fetch = async () => {
       throw new Error('Network error')
