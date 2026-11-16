@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  AdonisJS v6 package to publish real-time updates via a <a href="https://mercure.rocks">Mercure Hub</a> (SSE)
+  AdonisJS v6 / v7 package to publish real-time updates via a <a href="https://mercure.rocks">Mercure Hub</a> (SSE)
 </p>
 
 ---
