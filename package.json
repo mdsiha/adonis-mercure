@@ -1,7 +1,7 @@
 {
   "name": "@mdsiha369/adonis-mercure",
   "description": "Mercure Hub integration for AdonisJS v6 — publish real-time updates via Server-Sent Events (SSE)",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "engines": {
     "node": ">=20.6.0"
   },
