@@ -27,7 +27,7 @@ export class Mercure implements MercureContract {
     topics: string | string[],
     data: Record<string, unknown> = {},
     isPrivateOrOptions: boolean | SendOptions = false
-  ): Promise<Response> {
+  ): Promise<string> {
     const options: SendOptions =
       typeof isPrivateOrOptions === 'boolean' ? { private: isPrivateOrOptions } : isPrivateOrOptions
 

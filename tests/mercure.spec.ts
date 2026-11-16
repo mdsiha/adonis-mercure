@@ -58,6 +58,12 @@ test.group('Mercure', (group) => {
     assert.deepEqual(JSON.parse(body.get('data')!), { msg: 'hello' })
   })
 
+  test('send returns the event id', async ({ assert }) => {
+    globalThis.fetch = async () => new Response('urn:uuid:1234', { status: 200 })
+
+    assert.equal(await new Mercure(config).send('/topic', {}), 'urn:uuid:1234')
+  })
+
   test('send converts boolean true to private=on', async ({ assert }) => {
     let capturedBody = ''
     globalThis.fetch = async (_url, init) => {

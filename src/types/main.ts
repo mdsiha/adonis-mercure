@@ -31,6 +31,6 @@ export interface MercureContract {
     topics: string | string[],
     data?: Record<string, unknown>,
     options?: boolean | SendOptions
-  ): Promise<Response>
+  ): Promise<string>
   ping(): Promise<boolean>
 }

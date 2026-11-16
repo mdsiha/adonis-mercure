@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import type { MercureContract, SendOptions, TokenOptions } from './types/main.js'
 
@@ -30,13 +31,13 @@ export class FakeMercure implements MercureContract {
     topics: string | string[],
     data: Record<string, unknown> = {},
     isPrivateOrOptions: boolean | SendOptions = false
-  ): Promise<Response> {
+  ): Promise<string> {
     const topicList = Array.isArray(topics) ? topics : [topics]
     const options: SendOptions =
       typeof isPrivateOrOptions === 'boolean' ? { private: isPrivateOrOptions } : isPrivateOrOptions
 
     this.#sent.push({ topics: topicList, data, options })
-    return new Response('1', { status: 200 })
+    return options.id ?? `urn:uuid:${randomUUID()}`
   }
 
   async ping(): Promise<boolean> {
