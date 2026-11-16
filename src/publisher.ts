@@ -17,7 +17,7 @@ export class Publisher {
     topics: string | string[],
     data: Record<string, unknown> = {},
     options: SendOptions = {}
-  ): Promise<Response> {
+  ): Promise<string> {
     const topicList = Array.isArray(topics) ? topics : [topics]
     const form = new URLSearchParams()
 
@@ -51,7 +51,8 @@ export class Publisher {
         throw new MercurePublishError(response.status, body)
       }
 
-      return response
+      const id = await response.text()
+      return id.trim()
     } catch (err) {
       if (err instanceof MercureError) throw err
       if ((err as Error)?.name === 'AbortError') {

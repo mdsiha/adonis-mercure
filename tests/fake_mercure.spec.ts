@@ -12,6 +12,18 @@ test.group('FakeMercure', () => {
     assert.deepEqual(sent[0].data, { status: 'shipped' })
   })
 
+  test('send returns the given id', async ({ assert }) => {
+    const fake = new FakeMercure()
+
+    assert.equal(await fake.send('/topic', {}, { id: 'event-1' }), 'event-1')
+  })
+
+  test('send generates a urn:uuid id when none is given', async ({ assert }) => {
+    const fake = new FakeMercure()
+
+    assert.match(await fake.send('/topic', {}), /^urn:uuid:[0-9a-f-]{36}$/)
+  })
+
   test('assertSent passes when topic matches', async ({ assert }) => {
     const fake = new FakeMercure()
     await fake.send('/topic', { foo: 'bar' })

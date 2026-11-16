@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** `send()` now returns the id of the published update as a string instead of a `Response`. The hub generates a `urn:uuid:...` id unless you pass `id` in the options. Code that read the response (`response.status`, `await response.text()`) must use the returned id instead. Classes implementing `MercureContract` must change the return type of `send()` to `Promise<string>`
+
 ---
 
 ## [2.2.0] - 2026-11-15

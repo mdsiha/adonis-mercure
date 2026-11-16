@@ -36,6 +36,14 @@ test.group('Publisher', (group) => {
     assert.equal(capturedUrl, config.endpoint)
   })
 
+  test('returns the id sent back by the hub', async ({ assert }) => {
+    globalThis.fetch = async () => new Response('urn:uuid:1234\n', { status: 200 })
+
+    const id = await new Publisher(config).publish('test-topic', {})
+
+    assert.equal(id, 'urn:uuid:1234')
+  })
+
   test('sends topic and data in the body', async ({ assert }) => {
     let capturedBody = ''
 

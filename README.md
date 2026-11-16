@@ -100,7 +100,7 @@ import mercure from '@mdsiha369/adonis-mercure/services/main'
 ### Publish an update
 
 ```ts
-await mercure.send('/orders/42', { status: 'shipped' })
+const id = await mercure.send('/orders/42', { status: 'shipped' })
 ```
 
 ### Multiple topics
@@ -279,6 +279,8 @@ Publishes an update to the Mercure Hub.
 | `id`      | `string`  | SSE event ID (enables reconnection recovery)   |
 | `type`    | `string`  | SSE event type                                 |
 | `retry`   | `number`  | Client reconnect delay in milliseconds         |
+
+Returns the id of the published update. The hub generates one (`urn:uuid:...`) unless you pass `id` in the options.
 
 Throws `MercurePublishError` if the hub returns a non-2xx response.  
 Throws `MercureTimeoutError` if the hub does not respond within the configured timeout.  
