@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+---
+
+## [3.0.1] - 2026-11-25
+
 ### Fixed
 
 - `node ace configure` generated an env validation that rejected the default `http://localhost:3000` endpoint. `MERCURE_ENDPOINT` is now validated with `tld: false`. Existing apps must add this option to `start/env.ts` themselves
