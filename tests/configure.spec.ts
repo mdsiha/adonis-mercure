@@ -45,6 +45,17 @@ test.group('configure', () => {
     assert.deepEqual(Object.keys(validations!.args[0].variables), keys)
   })
 
+  test('accepts the localhost endpoint it writes to .env', async ({ assert }) => {
+    const { calls, command } = makeCommand()
+    await configure(command)
+
+    const vars = calls.find((c) => c.method === 'defineEnvVariables')
+    const validations = calls.find((c) => c.method === 'defineEnvValidations')
+
+    assert.equal(new URL(vars!.args[0].MERCURE_ENDPOINT).hostname, 'localhost')
+    assert.include(validations!.args[0].variables.MERCURE_ENDPOINT, 'tld: false')
+  })
+
   test('registers the provider in adonisrc.ts', async ({ assert }) => {
     const { calls, command } = makeCommand()
     await configure(command)

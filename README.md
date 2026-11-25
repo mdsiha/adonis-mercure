@@ -21,6 +21,7 @@
 
 - [Table of Contents](#table-of-contents)
 - [Requirements](#requirements)
+- [Hub compatibility](#hub-compatibility)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
@@ -31,6 +32,7 @@
   - [Generate a subscriber token](#generate-a-subscriber-token)
   - [Health check](#health-check)
 - [Testing](#testing)
+- [Performance](#performance)
 - [API Reference](#api-reference)
   - [`send(topics, data?, options?)`](#sendtopics-data-options)
   - [`generateSubscribeToken(topics)`](#generatesubscribetokentopics)
@@ -45,7 +47,13 @@
 
 - AdonisJS **v6** or **v7**
 - Node.js **>= 20.6.0**
-- A running [Mercure Hub](https://mercure.rocks/docs/hub/install)
+- A running [Mercure Hub](https://mercure.rocks/docs/hub/install) **0.x** (see [Hub compatibility](#hub-compatibility))
+
+## Hub compatibility
+
+This package targets **Mercure 0.x** and is tested with the **Mercure 0.24** hub (`dunglas/mercure:v0.24`).
+
+Mercure 1.x expects a new token format. The tokens signed by this package (with a `mercure` claim) are rejected with `401` by a 1.x hub, unless it runs in compatibility mode.
 
 ## Installation
 
@@ -156,16 +164,18 @@ const token = await mercure.generateSubscribeToken(['/orders/42'], { expiresIn: 
 
 Browsers cannot send an `Authorization` header with `EventSource`, so there are two ways to give the token to the hub.
 
-** Option 1: cookie (works with a plain `EventSource`)**
+**Option 1: cookie (works with a plain `EventSource`)**
 
-Set the token in a cookie from your AdonisJS app. Use `plainCookie`:
-`response.cookie` signs the value and the hub would reject it.
+Set the token in a cookie from your AdonisJS app. Use `plainCookie` with
+`encode: false`. `response.cookie` signs the value, and `plainCookie` encodes it
+in base64 by default: in both cases the hub cannot read the token and answers `401`.
 
 ```ts
 router.get('/orders/:id/subscribe', async ({ params, response }) => {
   const token = await mercure.generateSubscribeToken([`/orders/${params.id}`])
 
-  response.plainCookie('__Secure-mercure_access_token', token, {
+  response.plainCookie('mercureAuthorization', token, {
+    encode: false,
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
@@ -184,9 +194,10 @@ url.searchParams.append('topic', '/orders/42')
 const eventSource = new EventSource(url, { withCredentials: true })
 ```
 
-- The cookie name is the `cookie_name` setting of your hub. Recent hubs default to `__Secure-mercure_access_token`.
+- Mercure 0.x hubs read the `mercureAuthorization` cookie by default. If you changed the `cookie_name` setting of your hub, use that name instead.
 - The app and the hub must share the same registrable domain (for example `app.example.com` and `hub.example.com`). Add `domain: '.example.com'` to the cookie options in that case.
-- The `__Secure-` prefix requires HTTPS. For local HTTP development, configure a cookie name without the prefix in the hub and use `secure: false`.
+- `secure: true` requires HTTPS. For local HTTP development, use `secure: false`.
+- If your app and your hub have different origins (another subdomain or port), add the origin of your app to the `cors_origins` directive of the hub.
 
 **Option 2: `Authorization` header**
 
@@ -259,6 +270,18 @@ fake.clear()
 
 ---
 
+## Performance
+
+Measured against a local stub server (not a real hub), with the client and the server in separate processes on the same machine:
+
+- The overhead of `send()` compared to a raw `fetch()` call is too small to be measured: both take about 0.13 to 0.2 ms per call.
+- HS256 token signing runs at more than 100,000 tokens per second.
+- 100,000 calls to `send()` completed without errors and without any sign of a memory leak.
+
+These numbers describe the cost of the package on one machine. They say nothing about the capacity of a Mercure Hub or of your production setup.
+
+---
+
 ## API Reference
 
 ### `send(topics, data?, options?)`
@@ -322,6 +345,7 @@ Returns `true` if the hub answers, including with a 4xx status. Returns `false` 
 
 Features planned for upcoming releases:
 
+- **Mercure 1.x support** — sign tokens in the format expected by 1.x hubs
 - **`generatePublishToken(topics)`** — typed shorthand for publisher JWT tokens (symmetric to `generateSubscribeToken`)
 - **`sendBatch(messages[])`** — publish multiple updates in a single call
 - **Retry with backoff** — automatic retry on transient hub errors with configurable strategy
