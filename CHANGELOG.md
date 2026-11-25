@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `node ace configure` generated an env validation that rejected the default `http://localhost:3000` endpoint. `MERCURE_ENDPOINT` is now validated with `tld: false`. Existing apps must add this option to `start/env.ts` themselves
+- README: the cookie example did not work. `plainCookie` needs `encode: false`, and Mercure 0.x hubs read the `mercureAuthorization` cookie
+
+### Added
+
+- README: "Hub compatibility" and "Performance" sections, and a note about `cors_origins`
+
 ---
 
 ## [3.0.0] - 2026-11-16

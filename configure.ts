@@ -28,7 +28,7 @@ export async function configure(_command: ConfigureCommand) {
 
   await codemods.defineEnvValidations({
     variables: {
-      MERCURE_ENDPOINT: `Env.schema.string({ format: 'url' })`,
+      MERCURE_ENDPOINT: `Env.schema.string({ format: 'url', tld: false })`,
       MERCURE_ADMIN_JWT: `Env.schema.string()`,
       MERCURE_JWT_SECRET: `Env.schema.string()`,
     },
