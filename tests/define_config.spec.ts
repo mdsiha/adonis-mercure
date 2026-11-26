@@ -52,3 +52,46 @@ test.group('defineConfig', () => {
     assert.throws(() => defineConfig(config), /adminToken must not be empty/)
   })
 })
+
+const modernConfig = {
+  protocol: '1.x' as const,
+  endpoint: validConfig.endpoint,
+  issuer: 'https://app.example.com',
+  jwt: validConfig.jwt,
+}
+
+test.group('defineConfig with protocol 1.x', () => {
+  test('accepts a config without adminToken', ({ assert }) => {
+    assert.strictEqual(defineConfig(modernConfig), modernConfig)
+  })
+
+  test('rejects an unknown protocol', ({ assert }) => {
+    const config = { ...validConfig, protocol: '2.x' as any }
+
+    assert.throws(() => defineConfig(config), /protocol must be one of/)
+  })
+
+  test('rejects an empty issuer', ({ assert }) => {
+    const config = { ...modernConfig, issuer: '' }
+
+    assert.throws(() => defineConfig(config), /issuer must not be empty/)
+  })
+
+  test('rejects an empty adminToken', ({ assert }) => {
+    const config = { ...modernConfig, adminToken: '' }
+
+    assert.throws(() => defineConfig(config), /adminToken must not be empty/)
+  })
+
+  test('rejects a short publisherJwt secret', ({ assert }) => {
+    const config = { ...modernConfig, publisherJwt: { alg: 'HS256' as const, secret: 'short' } }
+
+    assert.throws(() => defineConfig(config), /publisherJwt\.secret must be at least 32/)
+  })
+
+  test('rejects an empty audience', ({ assert }) => {
+    for (const audience of ['', [], ['']]) {
+      assert.throws(() => defineConfig({ ...modernConfig, audience }), /audience must not be empty/)
+    }
+  })
+})

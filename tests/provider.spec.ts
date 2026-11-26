@@ -49,4 +49,16 @@ test.group('MercureProvider', () => {
 
     assert.instanceOf(error, MercureConfigError)
   })
+
+  test('accepts a 1.x config without adminToken', async ({ assert }) => {
+    const { container, provider } = makeProvider({
+      protocol: '1.x',
+      endpoint: config.endpoint,
+      issuer: 'https://app.example.com',
+      jwt: config.jwt,
+    })
+    await provider.boot()
+
+    assert.instanceOf(await container.make('mercure'), Mercure)
+  })
 })
