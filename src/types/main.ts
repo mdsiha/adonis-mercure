@@ -1,16 +1,32 @@
 export type JwtAlgorithm = 'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS512'
 
-export interface MercureConfig {
+export interface JwtConfig {
+  alg: JwtAlgorithm
+  secret: string
+}
+
+interface BaseMercureConfig {
   endpoint: string
-  adminToken: string
-  jwt: {
-    alg: JwtAlgorithm
-    secret: string
-  }
+  jwt: JwtConfig
   http?: {
     timeout?: number
   }
 }
+
+export interface LegacyMercureConfig extends BaseMercureConfig {
+  protocol?: '0.x'
+  adminToken: string
+}
+
+export interface ModernMercureConfig extends BaseMercureConfig {
+  protocol: '1.x'
+  issuer: string
+  audience?: string | string[]
+  publisherJwt?: JwtConfig
+  adminToken?: string
+}
+
+export type MercureConfig = LegacyMercureConfig | ModernMercureConfig
 
 export interface TokenOptions {
   /** Token lifetime in seconds. No `exp` claim is set when omitted */
