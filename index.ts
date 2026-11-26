@@ -19,5 +19,6 @@ export type {
   MercureContract,
   SendOptions,
   TokenOptions,
+  TopicMatcher,
 } from './src/types/main.js'
 export type { SentMessage } from './src/fake_mercure.js'

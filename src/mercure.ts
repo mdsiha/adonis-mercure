@@ -1,6 +1,12 @@
 import { TokenGenerator } from './token_generator.js'
 import { Publisher } from './publisher.js'
-import type { MercureConfig, MercureContract, SendOptions, TokenOptions } from './types/main.js'
+import type {
+  MercureConfig,
+  MercureContract,
+  SendOptions,
+  TokenOptions,
+  TopicMatcher,
+} from './types/main.js'
 
 const DEFAULT_TIMEOUT = 5000
 
@@ -19,7 +25,10 @@ export class Mercure implements MercureContract {
     return this.#tokenGenerator.generate(payload, options)
   }
 
-  generateSubscribeToken(topics: string[], options?: TokenOptions): Promise<string> {
+  generateSubscribeToken(
+    topics: Array<string | TopicMatcher>,
+    options?: TokenOptions
+  ): Promise<string> {
     return this.#tokenGenerator.generateSubscribeToken(topics, options)
   }
 

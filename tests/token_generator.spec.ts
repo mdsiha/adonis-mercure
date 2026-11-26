@@ -75,3 +75,128 @@ test.group('TokenGenerator', () => {
     }
   })
 })
+
+const modernConfig = {
+  protocol: '1.x' as const,
+  endpoint: config.endpoint,
+  issuer: 'https://app.example.com',
+  jwt: config.jwt,
+}
+
+const DETAIL_TYPE = 'https://mercure.rocks/authorization-detail'
+
+function decodeHeader(token: string) {
+  return JSON.parse(Buffer.from(token.split('.')[0], 'base64url').toString())
+}
+
+test.group('TokenGenerator with protocol 1.x', () => {
+  test('sets the at+jwt type in the header', async ({ assert }) => {
+    const token = await new TokenGenerator(modernConfig).generateSubscribeToken(['/orders/42'])
+
+    assert.deepEqual(decodeHeader(token), { alg: 'HS256', typ: 'at+jwt' })
+  })
+
+  test('sets the access token claims', async ({ assert }) => {
+    const token = await new TokenGenerator(modernConfig).generateSubscribeToken(['/orders/42'])
+    const claims = decode(token)
+
+    assert.equal(claims.iss, modernConfig.issuer)
+    assert.equal(claims.client_id, modernConfig.issuer)
+    assert.equal(claims.aud, modernConfig.endpoint)
+    assert.match(claims.sub, /^urn:uuid:/)
+    assert.match(claims.jti, /^urn:uuid:/)
+    assert.equal(claims.exp, claims.iat + 3600)
+    assert.isUndefined(claims.mercure)
+  })
+
+  test('accepts a custom audience, subject and lifetime', async ({ assert }) => {
+    const audience = ['http://mercure/.well-known/mercure', modernConfig.endpoint]
+    const generator = new TokenGenerator({ ...modernConfig, audience })
+    const token = await generator.generateSubscribeToken(['/orders/42'], {
+      subject: 'user-1',
+      expiresIn: 60,
+    })
+    const claims = decode(token)
+
+    assert.deepEqual(claims.aud, audience)
+    assert.equal(claims.sub, 'user-1')
+    assert.equal(claims.exp, claims.iat + 60)
+  })
+
+  test('translates publish, subscribe and payload', async ({ assert }) => {
+    const token = await new TokenGenerator(modernConfig).generate({
+      publish: ['*'],
+      subscribe: [
+        { match: '/orders/:id', matchType: 'urlpattern' },
+        { match: '/raw/{id}', matchType: 'exact' },
+      ],
+      payload: { user: 1 },
+    })
+
+    assert.deepEqual(decode(token).authorization_details, [
+      { type: DETAIL_TYPE, actions: ['publish'], topics: [{ match: '*' }] },
+      {
+        type: DETAIL_TYPE,
+        actions: ['subscribe'],
+        topics: [{ match: '/orders/:id', match_type: 'urlpattern' }, { match: '/raw/{id}' }],
+        payload: { user: 1 },
+      },
+    ])
+  })
+
+  test('grants nothing for an empty topic list', async ({ assert }) => {
+    const token = await new TokenGenerator(modernConfig).generateSubscribeToken([])
+
+    assert.deepEqual(decode(token).authorization_details, [])
+  })
+
+  test('rejects an unknown key', async ({ assert }) => {
+    const generator = new TokenGenerator(modernConfig)
+
+    await assert.rejects(() => generator.generate({ subscribes: ['*'] }), /Unknown key/)
+  })
+
+  test('rejects a URI template', async ({ assert }) => {
+    const generator = new TokenGenerator(modernConfig)
+
+    await assert.rejects(
+      () => generator.generateSubscribeToken(['/orders/{id}']),
+      /URI templates are not supported/
+    )
+  })
+
+  test('rejects an invalid topic', async ({ assert }) => {
+    const generator = new TokenGenerator(modernConfig)
+
+    for (const topic of [42, null, { match: '/a' }, { match: '/a', matchType: 'regex' }]) {
+      await assert.rejects(
+        () => generator.generate({ subscribe: [topic] }),
+        /A topic must be a string/
+      )
+    }
+  })
+
+  test('rejects a topic list that is not an array', async ({ assert }) => {
+    const generator = new TokenGenerator(modernConfig)
+
+    await assert.rejects(() => generator.generate({ publish: '*' }), /must be an array/)
+  })
+
+  test('rejects a payload without subscribe topic', async ({ assert }) => {
+    const generator = new TokenGenerator(modernConfig)
+
+    await assert.rejects(
+      () => generator.generate({ publish: ['*'], payload: {} }),
+      /payload requires/
+    )
+  })
+
+  test('rejects topic matcher objects with protocol 0.x', async ({ assert }) => {
+    const generator = new TokenGenerator(config)
+
+    await assert.rejects(
+      () => generator.generateSubscribeToken([{ match: '/a', matchType: 'exact' }]),
+      /require protocol '1.x'/
+    )
+  })
+})

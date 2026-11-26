@@ -28,9 +28,15 @@ export interface ModernMercureConfig extends BaseMercureConfig {
 
 export type MercureConfig = LegacyMercureConfig | ModernMercureConfig
 
+export interface TopicMatcher {
+  match: string
+  matchType: 'exact' | 'urlpattern'
+}
+
 export interface TokenOptions {
   /** Token lifetime in seconds. No `exp` claim is set when omitted */
   expiresIn?: number
+  subject?: string
 }
 
 export interface SendOptions {
@@ -42,7 +48,10 @@ export interface SendOptions {
 
 export interface MercureContract {
   generate(payload: Record<string, unknown>, options?: TokenOptions): Promise<string>
-  generateSubscribeToken(topics: string[], options?: TokenOptions): Promise<string>
+  generateSubscribeToken(
+    topics: Array<string | TopicMatcher>,
+    options?: TokenOptions
+  ): Promise<string>
   send(
     topics: string | string[],
     data?: Record<string, unknown>,
