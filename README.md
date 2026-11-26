@@ -32,7 +32,6 @@
   - [Generate a subscriber token](#generate-a-subscriber-token)
   - [Health check](#health-check)
 - [Testing](#testing)
-- [Performance](#performance)
 - [API Reference](#api-reference)
   - [`send(topics, data?, options?)`](#sendtopics-data-options)
   - [`generateSubscribeToken(topics)`](#generatesubscribetokentopics)
@@ -267,18 +266,6 @@ const tokens = fake.getTokens()
 // reset between tests
 fake.clear()
 ```
-
----
-
-## Performance
-
-Measured against a local stub server (not a real hub), with the client and the server in separate processes on the same machine:
-
-- The overhead of `send()` compared to a raw `fetch()` call is too small to be measured: both take about 0.13 to 0.2 ms per call.
-- HS256 token signing runs at more than 100,000 tokens per second.
-- 100,000 calls to `send()` completed without errors and without any sign of a memory leak.
-
-These numbers describe the cost of the package on one machine. They say nothing about the capacity of a Mercure Hub or of your production setup.
 
 ---
 
