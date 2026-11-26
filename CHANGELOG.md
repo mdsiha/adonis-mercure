@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Removed
+
+- README: the "Performance" section, as the scripts behind its numbers are not part of the repository
+
 ---
 
 ## [3.0.1] - 2026-11-25
