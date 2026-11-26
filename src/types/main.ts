@@ -36,6 +36,7 @@ export interface TopicMatcher {
 export interface TokenOptions {
   /** Token lifetime in seconds. No `exp` claim is set when omitted */
   expiresIn?: number
+  /** `sub` claim, 1.x only. A random `urn:uuid:` is used when omitted */
   subject?: string
 }
 

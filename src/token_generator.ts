@@ -24,6 +24,7 @@ function expirationFrom(now: number, expiresIn: number): number {
 // turns one topic into the matcher object expected by a 1.x hub
 function toMatcher(topic: unknown) {
   if (typeof topic === 'string') {
+    // a 1.x hub compares strings as is, a URI template would silently match nothing
     if (/\{[^}]*\}/.test(topic)) {
       throw new MercureError(
         `URI templates are not supported by Mercure 1.x: "${topic}". Use { match: '/orders/:id', matchType: 'urlpattern' }`
@@ -62,6 +63,7 @@ function toAuthorizationDetails(payload: Record<string, unknown>) {
       throw new MercureError(`${action} must be an array of topics`)
     }
 
+    // the hub rejects a token with an empty topics list
     if (topics.length === 0) continue
 
     const detail: Record<string, unknown> = {
@@ -119,6 +121,7 @@ export class TokenGenerator {
     return this.#sign(claims)
   }
 
+  // wildcard topic grants access to all private events, don't pass user input directly
   generateSubscribeToken(
     topics: Array<string | TopicMatcher>,
     options?: TokenOptions
