@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- Mercure 1.x support with the new `protocol: '1.x'` option: RFC 9068 access tokens with `authorization_details`, and the `issuer`, `audience` and `publisherJwt` options
+- In 1.x, `adminToken` is optional: the package signs and renews its own publisher token
+- `{ match, matchType }` topics and the `subject` token option, both for 1.x
+- Public types `TopicMatcher`, `JwtConfig`, `LegacyMercureConfig` and `ModernMercureConfig`
+- README: configuration and upgrade guide for Mercure 1.x
+
+### Changed
+
+- `node ace configure` now generates a Mercure 1.x configuration with `MERCURE_ISSUER` instead of `MERCURE_ADMIN_JWT`. Existing apps are not affected and keep using 0.x
+- `MercureConfig` is now a union type: an interface can no longer extend it
+- `defineConfig()` rejects an unknown `protocol`
+
 ### Removed
 
 - README: the "Performance" section, as the scripts behind its numbers are not part of the repository
