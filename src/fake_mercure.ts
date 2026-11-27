@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
-import type { MercureContract, SendOptions, TokenOptions } from './types/main.js'
+import type { MercureContract, SendOptions, TokenOptions, TopicMatcher } from './types/main.js'
 
 export interface SentMessage {
   topics: string[]
@@ -23,7 +23,10 @@ export class FakeMercure implements MercureContract {
     return 'fake-token'
   }
 
-  async generateSubscribeToken(topics: string[], options?: TokenOptions): Promise<string> {
+  async generateSubscribeToken(
+    topics: Array<string | TopicMatcher>,
+    options?: TokenOptions
+  ): Promise<string> {
     return this.generate({ subscribe: topics }, options)
   }
 

@@ -1,3 +1,4 @@
+import jws from 'jws'
 import { test } from '@japa/runner'
 import { Publisher } from '../src/publisher.js'
 import { MercurePublishError } from '../src/errors/publish_error.js'
@@ -163,5 +164,74 @@ test.group('Publisher', (group) => {
     // URLSearchParams.getAll handles repeated keys
     const body = new URLSearchParams(capturedBody)
     assert.deepEqual(body.getAll('topic'), ['/a', '/b'])
+  })
+})
+
+const modernConfig = {
+  protocol: '1.x' as const,
+  endpoint: config.endpoint,
+  issuer: 'https://app.example.com',
+  jwt: config.jwt,
+}
+
+test.group('Publisher with protocol 1.x', (group) => {
+  let originalFetch: typeof globalThis.fetch
+  let originalNow: typeof Date.now
+  let tokens: string[]
+
+  group.each.setup(() => {
+    originalFetch = globalThis.fetch
+    originalNow = Date.now
+    tokens = []
+    globalThis.fetch = async (_url, init) => {
+      const headers = (init as RequestInit).headers as Record<string, string>
+      tokens.push(headers.Authorization.replace('Bearer ', ''))
+      return new Response('1', { status: 200 })
+    }
+  })
+
+  group.each.teardown(() => {
+    globalThis.fetch = originalFetch
+    Date.now = originalNow
+  })
+
+  test('uses the configured adminToken as is', async ({ assert }) => {
+    await new Publisher({ ...modernConfig, adminToken: 'my-token' }).publish('topic')
+
+    assert.deepEqual(tokens, ['my-token'])
+  })
+
+  test('signs a short-lived publisher token', async ({ assert }) => {
+    await new Publisher(modernConfig).publish('topic')
+
+    const claims = JSON.parse(Buffer.from(tokens[0].split('.')[1], 'base64url').toString())
+
+    assert.isTrue(jws.verify(tokens[0], 'HS256', modernConfig.jwt.secret))
+    assert.equal(claims.sub, modernConfig.issuer)
+    assert.equal(claims.exp, claims.iat + 300)
+    assert.deepEqual(claims.authorization_details[0].actions, ['publish'])
+    assert.deepEqual(claims.authorization_details[0].topics, [{ match: '*' }])
+  })
+
+  test('signs with publisherJwt when provided', async ({ assert }) => {
+    const publisherJwt = { alg: 'HS512' as const, secret: 'publisher-secret' }
+    await new Publisher({ ...modernConfig, publisherJwt }).publish('topic')
+
+    assert.isTrue(jws.verify(tokens[0], 'HS512', publisherJwt.secret))
+  })
+
+  test('reuses the token then renews it before it expires', async ({ assert }) => {
+    let now = originalNow()
+    Date.now = () => now
+    const publisher = new Publisher(modernConfig)
+
+    await publisher.publish('topic')
+    now += 239_000
+    await publisher.publish('topic')
+    now += 1000
+    await publisher.publish('topic')
+
+    assert.equal(tokens[1], tokens[0])
+    assert.notEqual(tokens[2], tokens[0])
   })
 })

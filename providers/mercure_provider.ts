@@ -11,7 +11,9 @@ export default class MercureProvider {
     this.app.container.singleton('mercure', async () => {
       const config = this.app.config.get<MercureConfig | undefined>('mercure')
 
-      if (!config?.endpoint || !config?.adminToken || !config?.jwt?.secret) {
+      const missingCredential = config?.protocol === '1.x' ? !config.issuer : !config?.adminToken
+
+      if (!config?.endpoint || !config.jwt?.secret || missingCredential) {
         throw new MercureConfigError(
           'Missing or incomplete Mercure config. Run "node ace configure @mdsiha369/adonis-mercure"'
         )

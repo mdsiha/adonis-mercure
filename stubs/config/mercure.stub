@@ -5,8 +5,10 @@ import env from '#start/env'
 import { defineConfig } from '@mdsiha369/adonis-mercure'
 
 export default defineConfig({
+  // for a 0.x hub, use '0.x' and replace issuer with adminToken
+  protocol: '1.x',
   endpoint: env.get('MERCURE_ENDPOINT'),
-  adminToken: env.get('MERCURE_ADMIN_JWT'),
+  issuer: env.get('MERCURE_ISSUER'),
 
   jwt: {
     alg: 'HS256',

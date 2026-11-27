@@ -37,7 +37,7 @@ test.group('configure', () => {
     const { calls, command } = makeCommand()
     await configure(command)
 
-    const keys = ['MERCURE_ENDPOINT', 'MERCURE_ADMIN_JWT', 'MERCURE_JWT_SECRET']
+    const keys = ['MERCURE_ENDPOINT', 'MERCURE_ISSUER', 'MERCURE_JWT_SECRET']
     const vars = calls.find((c) => c.method === 'defineEnvVariables')
     const validations = calls.find((c) => c.method === 'defineEnvValidations')
 
@@ -54,6 +54,15 @@ test.group('configure', () => {
 
     assert.equal(new URL(vars!.args[0].MERCURE_ENDPOINT).hostname, 'localhost')
     assert.include(validations!.args[0].variables.MERCURE_ENDPOINT, 'tld: false')
+  })
+
+  test('writes the default issuer trusted by the hub', async ({ assert }) => {
+    const { calls, command } = makeCommand()
+    await configure(command)
+
+    const vars = calls.find((c) => c.method === 'defineEnvVariables')
+
+    assert.equal(vars!.args[0].MERCURE_ISSUER, 'https://localhost')
   })
 
   test('registers the provider in adonisrc.ts', async ({ assert }) => {

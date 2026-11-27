@@ -24,6 +24,9 @@
 - [Hub compatibility](#hub-compatibility)
 - [Installation](#installation)
 - [Configuration](#configuration)
+  - [Mercure 1.x](#mercure-1x)
+  - [Mercure 0.x](#mercure-0x)
+  - [Upgrade from 0.x to 1.x](#upgrade-from-0x-to-1x)
 - [Usage](#usage)
   - [Publish an update](#publish-an-update)
   - [Multiple topics](#multiple-topics)
@@ -34,8 +37,8 @@
 - [Testing](#testing)
 - [API Reference](#api-reference)
   - [`send(topics, data?, options?)`](#sendtopics-data-options)
-  - [`generateSubscribeToken(topics)`](#generatesubscribetokentopics)
-  - [`generate(payload)`](#generatepayload)
+  - [`generateSubscribeToken(topics, options?)`](#generatesubscribetokentopics-options)
+  - [`generate(payload, options?)`](#generatepayload-options)
   - [`ping()`](#ping)
 - [Roadmap](#roadmap)
 - [License](#license)
@@ -46,13 +49,19 @@
 
 - AdonisJS **v6** or **v7**
 - Node.js **>= 20.6.0**
-- A running [Mercure Hub](https://mercure.rocks/docs/hub/install) **0.x** (see [Hub compatibility](#hub-compatibility))
+- A running [Mercure Hub](https://mercure.rocks/docs/hub/install), 0.x or 1.x (see [Hub compatibility](#hub-compatibility))
 
 ## Hub compatibility
 
-This package targets **Mercure 0.x** and is tested with the **Mercure 0.24** hub (`dunglas/mercure:v0.24`).
+Mercure 1.x expects a new token format, so tell the package which one to sign with the `protocol` option. It is tested with `dunglas/mercure:v0.24` and `dunglas/mercure:v1.1.6`.
 
-Mercure 1.x expects a new token format. The tokens signed by this package (with a `mercure` claim) are rejected with `401` by a 1.x hub, unless it runs in compatibility mode.
+| Hub | `protocol`                 | Hub setting                                                          |
+| --- | -------------------------- | -------------------------------------------------------------------- |
+| 0.x | `'0.x'` (default)          | none                                                                 |
+| 1.x | `'1.x'`                    | `MERCURE_TRUSTED_ISSUERS` must contain your `issuer`                 |
+| 1.x | `'0.x'`, during migrations | `MERCURE_EXTRA_DIRECTIVES=protocol_version_compatibility 8` (legacy) |
+
+A 1.x hub in normal mode rejects 0.x tokens with `401`.
 
 ## Installation
 
@@ -63,7 +72,9 @@ node ace configure @mdsiha369/adonis-mercure
 
 ## Configuration
 
-After running `ace configure`, a `config/mercure.ts` file is created and your `.env` is updated automatically.
+After running `ace configure`, a `config/mercure.ts` file is created and your `.env` is updated automatically. New installs use Mercure 1.x.
+
+### Mercure 1.x
 
 ```ts
 // config/mercure.ts
@@ -71,8 +82,9 @@ import env from '#start/env'
 import { defineConfig } from '@mdsiha369/adonis-mercure'
 
 export default defineConfig({
+  protocol: '1.x',
   endpoint: env.get('MERCURE_ENDPOINT'),
-  adminToken: env.get('MERCURE_ADMIN_JWT'),
+  issuer: env.get('MERCURE_ISSUER'),
   jwt: {
     alg: 'HS256',
     secret: env.get('MERCURE_JWT_SECRET'),
@@ -84,15 +96,59 @@ export default defineConfig({
 })
 ```
 
-Set the following env variables in your `.env`:
-
 ```env
 MERCURE_ENDPOINT=http://localhost:3000/.well-known/mercure
-MERCURE_ADMIN_JWT=<your-admin-jwt>
+MERCURE_ISSUER=https://localhost
 MERCURE_JWT_SECRET=<your-jwt-secret>
 ```
 
-> **Note:** The `adminToken` must be a JWT signed with your hub's secret and a `"publish": ["*"]` claim in the `mercure` field. See the [Mercure auth docs](https://mercure.rocks/docs/hub/auth) for details.
+| Option         | Required | Default    | Description                                                                |
+| -------------- | -------- | ---------- | -------------------------------------------------------------------------- |
+| `issuer`       | yes      | —          | `iss` claim of the tokens. The hub must trust it                           |
+| `jwt`          | yes      | —          | Key signing subscriber tokens (`MERCURE_SUBSCRIBER_JWT_KEY` on the hub)    |
+| `publisherJwt` | no       | `jwt`      | Key signing publisher tokens (`MERCURE_PUBLISHER_JWT_KEY` on the hub)      |
+| `audience`     | no       | `endpoint` | `aud` claim, a string or an array                                          |
+| `adminToken`   | no       | —          | Your own publisher token. Without it, the package signs short-lived tokens |
+
+Set `publisherJwt` when your hub uses a different key for publishers.
+
+**Audience.** The hub rejects a token whose `aud` is not its own URL. Unless `resource_identifier` is set on the hub, that URL is the one each client contacted. If your app publishes to `http://mercure/.well-known/mercure` while browsers subscribe to `https://hub.example.com/.well-known/mercure`, list both:
+
+```ts
+audience: [
+  'http://mercure/.well-known/mercure',
+  'https://hub.example.com/.well-known/mercure',
+],
+```
+
+Behind a proxy that terminates TLS, configure `trusted_proxies` or `resource_identifier` on the hub, otherwise it expects an `http://` audience.
+
+### Mercure 0.x
+
+`protocol` can be omitted. Configurations written for previous versions of this package keep working.
+
+```ts
+export default defineConfig({
+  endpoint: env.get('MERCURE_ENDPOINT'),
+  adminToken: env.get('MERCURE_ADMIN_JWT'),
+  jwt: {
+    alg: 'HS256',
+    secret: env.get('MERCURE_JWT_SECRET'),
+  },
+})
+```
+
+> **Note:** The `adminToken` must be a JWT signed with your hub's publisher key and a `"publish": ["*"]` claim in the `mercure` field.
+
+### Upgrade from 0.x to 1.x
+
+1. Upgrade the hub and set `MERCURE_TRUSTED_ISSUERS` to your issuer.
+2. Add `protocol: '1.x'` and `issuer` to `config/mercure.ts`, remove `adminToken`, and add `MERCURE_ISSUER` to `.env` and `start/env.ts`.
+3. Replace URI templates (`/orders/{id}`) with URL patterns: `{ match: '/orders/:id', matchType: 'urlpattern' }`.
+4. In the browser, replace the `topic` query parameter with `match`, and rename the cookie to `__Secure-mercure_access_token`.
+5. Stop passing the token in the URL (`?authorization=`), which 1.x no longer accepts.
+
+See the [Mercure upgrade guide](https://github.com/dunglas/mercure/blob/v1.1.6/docs/UPGRADE.md) for the hub side.
 
 ---
 
@@ -155,11 +211,21 @@ const token = await mercure.generateSubscribeToken(['/orders/42'])
 const token = await mercure.generate({ subscribe: ['/orders/42'] })
 ```
 
-Tokens do not expire by default. Pass `expiresIn` (in seconds) to limit how long a token stays valid:
+With 1.x, a string topic matches exactly. Use a matcher object for [URL patterns](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API):
 
 ```ts
-const token = await mercure.generateSubscribeToken(['/orders/42'], { expiresIn: 3600 })
+const token = await mercure.generateSubscribeToken([
+  { match: '/orders/:id', matchType: 'urlpattern' },
+])
 ```
+
+`expiresIn` (in seconds) sets how long a token stays valid. With 1.x it defaults to `3600`. With 0.x, tokens do not expire by default.
+
+```ts
+const token = await mercure.generateSubscribeToken(['/orders/42'], { expiresIn: 600 })
+```
+
+With 1.x, the hub closes the connection when the token expires, and `EventSource` may stop retrying. Send a fresh token before that and open a new `EventSource` if needed.
 
 Browsers cannot send an `Authorization` header with `EventSource`, so there are two ways to give the token to the hub.
 
@@ -173,7 +239,8 @@ in base64 by default: in both cases the hub cannot read the token and answers `4
 router.get('/orders/:id/subscribe', async ({ params, response }) => {
   const token = await mercure.generateSubscribeToken([`/orders/${params.id}`])
 
-  response.plainCookie('mercureAuthorization', token, {
+  // 0.x hubs: name the cookie 'mercureAuthorization'
+  response.plainCookie('__Secure-mercure_access_token', token, {
     encode: false,
     httpOnly: true,
     secure: true,
@@ -188,14 +255,14 @@ Then, in the browser:
 
 ```ts
 const url = new URL('https://hub.example.com/.well-known/mercure')
-url.searchParams.append('topic', '/orders/42')
+url.searchParams.append('match', '/orders/42') // 0.x hubs: 'topic'
 
 const eventSource = new EventSource(url, { withCredentials: true })
 ```
 
-- Mercure 0.x hubs read the `mercureAuthorization` cookie by default. If you changed the `cookie_name` setting of your hub, use that name instead.
+- These are the default cookie names. If you changed the `cookie_name` setting of your hub, use that name instead.
 - The app and the hub must share the same registrable domain (for example `app.example.com` and `hub.example.com`). Add `domain: '.example.com'` to the cookie options in that case.
-- `secure: true` requires HTTPS. For local HTTP development, use `secure: false`.
+- `secure: true` requires HTTPS, and browsers refuse a `__Secure-` cookie without it. For local HTTP development, use `secure: false` and, with 1.x, a name without the prefix set in `cookie_name` on the hub.
 - If your app and your hub have different origins (another subdomain or port), add the origin of your app to the `cors_origins` directive of the hub.
 
 **Option 2: `Authorization` header**
@@ -298,27 +365,38 @@ Throws `MercureConnectionError` if the hub cannot be reached (connection refused
 
 ---
 
-### `generateSubscribeToken(topics)`
+### `generateSubscribeToken(topics, options?)`
 
-Generates a JWT with `{ subscribe: topics }` for a frontend client.
+Generates a JWT allowing a frontend client to subscribe to `topics`. A topic is a string or, with 1.x, a `{ match, matchType }` object where `matchType` is `'exact'` or `'urlpattern'`.
 
 ```ts
 const token = await mercure.generateSubscribeToken(['/chat/1', '/notifications/me'])
 ```
 
-Takes an optional last argument `{ expiresIn }` (seconds) that sets the `exp` claim. Without it the token never expires.
+The `*` topic grants access to every private update: don't pass user input directly.
+
+**`TokenOptions`**
+
+| Property    | Type     | Description                                                              |
+| ----------- | -------- | ------------------------------------------------------------------------ |
+| `expiresIn` | `number` | Lifetime in seconds. Default: `3600` with 1.x, no expiration with 0.x    |
+| `subject`   | `string` | `sub` claim, 1.x only. A random `urn:uuid:` is used when it is not given |
 
 ---
 
-### `generate(payload)`
+### `generate(payload, options?)`
 
-Low-level JWT generation. Wraps `payload` under the `mercure` claim.
+Low-level JWT generation. With 0.x, `payload` is wrapped under the `mercure` claim. With 1.x, it is translated to the `authorization_details` claim and only accepts the `subscribe`, `publish` and `payload` keys.
 
 ```ts
-const token = await mercure.generate({ subscribe: ['/chat/1'], publish: ['/chat/1'] })
+const token = await mercure.generate({
+  subscribe: ['/chat/1'],
+  publish: ['/chat/1'],
+  payload: { room: 1 },
+})
 ```
 
-Takes an optional last argument `{ expiresIn }` (seconds) that sets the `exp` claim. Without it the token never expires.
+With 1.x, `payload` is attached to the subscribe grant. The hub shares it with other authorized subscribers, so don't put secrets in it. Takes the same options as `generateSubscribeToken`.
 
 ---
 
@@ -332,7 +410,6 @@ Returns `true` if the hub answers, including with a 4xx status. Returns `false` 
 
 Features planned for upcoming releases:
 
-- **Mercure 1.x support** — sign tokens in the format expected by 1.x hubs
 - **`generatePublishToken(topics)`** — typed shorthand for publisher JWT tokens (symmetric to `generateSubscribeToken`)
 - **`sendBatch(messages[])`** — publish multiple updates in a single call
 - **Retry with backoff** — automatic retry on transient hub errors with configurable strategy

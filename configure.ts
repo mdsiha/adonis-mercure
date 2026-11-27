@@ -22,14 +22,14 @@ export async function configure(_command: ConfigureCommand) {
 
   await codemods.defineEnvVariables({
     MERCURE_ENDPOINT: 'http://localhost:3000/.well-known/mercure',
-    MERCURE_ADMIN_JWT: '',
+    MERCURE_ISSUER: 'https://localhost',
     MERCURE_JWT_SECRET: '',
   })
 
   await codemods.defineEnvValidations({
     variables: {
       MERCURE_ENDPOINT: `Env.schema.string({ format: 'url', tld: false })`,
-      MERCURE_ADMIN_JWT: `Env.schema.string()`,
+      MERCURE_ISSUER: `Env.schema.string()`,
       MERCURE_JWT_SECRET: `Env.schema.string()`,
     },
     leadingComment: 'Mercure configuration',
