@@ -15,6 +15,9 @@ export { MercureTimeoutError } from './src/errors/timeout_error.js'
 export { MercureConnectionError } from './src/errors/connection_error.js'
 export type {
   JwtAlgorithm,
+  JwtConfig,
+  LegacyMercureConfig,
+  ModernMercureConfig,
   MercureConfig,
   MercureContract,
   SendOptions,
