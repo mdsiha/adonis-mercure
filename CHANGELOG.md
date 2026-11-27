@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+---
+
+## [3.1.0] - 2026-11-27
+
 ### Added
 
 - Mercure 1.x support with the new `protocol: '1.x'` option: RFC 9068 access tokens with `authorization_details`, and the `issuer`, `audience` and `publisherJwt` options
